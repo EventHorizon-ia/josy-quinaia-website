@@ -1,8 +1,8 @@
 /* ===== Configuração: substituir pelos dados reais da Josy ===== */
 const CONFIG = {
-  whatsapp: "5500000000000", // formato: 55 + DDD + número, só dígitos
+  whatsapp: "5514996103416", // formato: 55 + DDD + número, só dígitos
   mensagem: "Olá, Josy! Gostaria de agendar uma avaliação.",
-  instagram: "https://www.instagram.com/" // trocar pelo link do perfil
+  instagram: "https://www.instagram.com/drajosyquinaia/"
 };
 
 (() => {
@@ -45,7 +45,7 @@ const CONFIG = {
   });
 
   // Entrada ao rolar
-  const alvos = document.querySelectorAll(".card,.sec-head,.phil>div,.gal>.ph,.about>*,.contact>*,.ftr__in>*");
+  const alvos = document.querySelectorAll(".card,.sec-head,.phil>div,.about>*,.contact>*,.ftr__in>*");
   if ("IntersectionObserver" in window) {
     const io = new IntersectionObserver((itens) => {
       itens.forEach(i => {
