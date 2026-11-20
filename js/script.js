@@ -44,6 +44,76 @@ const CONFIG = {
     }
   });
 
+  let navScrollFrame = null;
+  let savedScrollBehavior = null;
+  const restoreScrollBehavior = () => {
+    if (savedScrollBehavior !== null) {
+      document.documentElement.style.scrollBehavior = savedScrollBehavior;
+      savedScrollBehavior = null;
+    }
+  };
+  const cancelNavScroll = () => {
+    if (navScrollFrame !== null) {
+      cancelAnimationFrame(navScrollFrame);
+      navScrollFrame = null;
+    }
+    restoreScrollBehavior();
+  };
+
+  window.addEventListener("wheel", cancelNavScroll, { passive: true });
+  window.addEventListener("touchstart", cancelNavScroll, { passive: true });
+  window.addEventListener("keydown", e => {
+    if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(e.key)) {
+      cancelNavScroll();
+    }
+  });
+
+  document.querySelectorAll('.nav a[href^="#"],.ftr nav a[href^="#"],.hero__copy a[href^="#"]').forEach(link => {
+    link.addEventListener("click", event => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+      const target = document.getElementById(link.getAttribute("href").slice(1));
+      if (!target) return;
+
+      event.preventDefault();
+      cancelNavScroll();
+
+      const root = document.documentElement;
+      const start = window.scrollY;
+      const offset = parseFloat(getComputedStyle(root).scrollPaddingTop) || 0;
+      const maxScroll = root.scrollHeight - window.innerHeight;
+      const end = Math.max(0, Math.min(maxScroll, start + target.getBoundingClientRect().top - offset));
+      const distance = end - start;
+
+      if (window.location.hash !== link.hash) {
+        window.history.pushState(null, "", link.hash);
+      }
+      if (Math.abs(distance) < 1) return;
+
+      const duration = Math.min(2800, Math.max(1100, Math.abs(distance) * 0.9));
+      const startedAt = performance.now();
+      savedScrollBehavior = root.style.scrollBehavior;
+      root.style.scrollBehavior = "auto";
+
+      const animate = now => {
+        const progress = Math.min((now - startedAt) / duration, 1);
+        const eased = progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        window.scrollTo(0, start + distance * eased);
+
+        if (progress < 1) {
+          navScrollFrame = requestAnimationFrame(animate);
+        } else {
+          navScrollFrame = null;
+          restoreScrollBehavior();
+        }
+      };
+
+      navScrollFrame = requestAnimationFrame(animate);
+    });
+  });
+
   // Entrada ao rolar
   const alvos = document.querySelectorAll(".card,.sec-head,.phil>div,.about>*,.contact>*,.ftr__in>*");
   if ("IntersectionObserver" in window) {

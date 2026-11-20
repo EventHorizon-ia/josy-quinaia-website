@@ -5,7 +5,7 @@
 
 /* ===== Base ===== */
 *,*::before,*::after{box-sizing:border-box;margin:0}
-html{scroll-behavior:smooth;scroll-padding-top:var(--hh);scrollbar-width:none}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--hh) + .75rem);scrollbar-width:none}
 html::-webkit-scrollbar{display:none}
 body{font:400 1.0625rem/1.7 var(--sans);color:var(--ink);background-color:var(--paper);background-image:radial-gradient(ellipse at 18% 24%,rgba(215,124,162,.34),transparent 58%),radial-gradient(ellipse at 82% 72%,rgba(200,63,124,.22),transparent 56%);background-size:180% 180%;background-position:0% 0%,100% 100%;background-repeat:no-repeat;background-attachment:fixed;animation:bodyBackground 8s ease-in-out infinite alternate;isolation:isolate;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{display:block;max-width:100%;height:auto}
@@ -56,7 +56,7 @@ p+p{margin-top:1rem}
 .hero{padding:2.5rem 0 4rem}
 .hero__grid{display:grid;gap:2.5rem}
 .hero__fig{position:relative;max-width:440px;width:100%;margin-inline:auto}
-.hero__fig{overflow:hidden;border:0;border-radius:0;outline:0;box-shadow:none;animation:figIn 1.3s cubic-bezier(.2,.7,.2,1) .15s both}
+.hero__fig{overflow:hidden;border:0;border-radius:14px;outline:0;box-shadow:none;animation:figIn 1.3s cubic-bezier(.2,.7,.2,1) .15s both}
 .hero__fig img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 20%;animation:breathe 18s ease-in-out infinite alternate}
 .hero__copy>*{animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
 .hero__copy>*:nth-child(2){animation-delay:.12s}.hero__copy>*:nth-child(3){animation-delay:.24s}.hero__copy>*:nth-child(4){animation-delay:.36s}
@@ -71,7 +71,7 @@ p+p{margin-top:1rem}
 /* Tratamentos: carrossel no mobile, grade no desktop */
 .tx{display:flex;gap:1.2rem;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:1rem;margin-right:-5vw;padding-right:5vw}
 .card{flex:0 0 78%;scroll-snap-align:start;display:flex;flex-direction:column}
-.card__img{overflow:hidden;border:0;border-radius:0;outline:0;box-shadow:none;margin-bottom:1.2rem}
+.card__img{overflow:hidden;border:0;border-radius:14px;outline:0;box-shadow:none;margin-bottom:1.2rem}
 .card img{width:100%;aspect-ratio:9/14;object-fit:cover;transition:transform 1.4s cubic-bezier(.2,.7,.2,1)}
 .card:nth-child(1) img{object-position:70% 50%}
 .card p{font-size:1rem}
@@ -87,12 +87,14 @@ p+p{margin-top:1rem}
 /* Contato */
 .contact{display:grid;gap:3rem}
 .contact .actions{margin-top:1.8rem}
+.contact__location{display:grid;gap:1.5rem;align-items:start}
 .info{display:grid;gap:.2rem;align-content:start}
 .info dt{font-family:var(--serif);font-size:1.4rem;color:var(--plum);margin-top:1rem}
 .info dd{margin:0}
-.map{max-width:760px;margin:2.5rem auto 0;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
-.map iframe{display:block;width:100%;height:220px;border:0}
-.map p{padding:.6rem 1rem;font-size:.95rem}
+.map-wrap{width:100%;max-width:200px;margin-inline:auto}
+.map{width:100%;aspect-ratio:1;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+.map iframe{display:block;width:100%;height:100%;border:0}
+.map__link{margin-top:.5rem;font-size:.9rem}
 
 /* Footer */
 .ftr{background:var(--ink);color:var(--blush);padding:3.5rem 0 1.5rem}
@@ -121,11 +123,12 @@ p+p{margin-top:1rem}
   .nav a{padding:0;border:0;font-size:.98rem}
   .hero{padding:4rem 0 6rem}
   .hero__grid{grid-template-columns:1.1fr .9fr;align-items:center;gap:5rem}
+  .contact__location{grid-template-columns:minmax(0,1fr) clamp(150px,16vw,180px);gap:1rem}
+  .map-wrap{max-width:none;margin:0}
   .tx{grid-template-columns:repeat(4,1fr);gap:1.6rem}
   .card img{aspect-ratio:9/14}
 }
 @media (prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
   *{animation:none!important;transition:none!important}
 }
 
@@ -146,7 +149,7 @@ p+p{margin-top:1rem}
 /* Imagens: entrada, respiração lenta no hero, zoom suave ao passar o mouse */
 @keyframes figIn{from{opacity:0;transform:translateY(26px)}}
 @keyframes breathe{from{transform:scale(1.02)}to{transform:scale(1.08)}}
-.about__fig{max-width:420px;width:100%;margin-inline:auto;overflow:hidden;border:0;border-radius:0;outline:0;box-shadow:none}
+.about__fig{max-width:420px;width:100%;margin-inline:auto;overflow:hidden;border:0;border-radius:14px;outline:0;box-shadow:none}
 .about__fig img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 12%;transition:transform 1.8s cubic-bezier(.2,.7,.2,1)}
 .about__fig:hover img,.card:hover .card__img img{transform:scale(1.05)}
 
@@ -267,3 +270,4 @@ body::after {
     animation: none !important;
   }
 }
+
