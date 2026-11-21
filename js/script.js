@@ -114,6 +114,136 @@ const CONFIG = {
     });
   });
 
+  // Avaliações do Google (carregadas de /api/reviews; a chave fica no servidor)
+  const lista = document.getElementById("reviews-list");
+  if (lista) {
+    const NS = "http://www.w3.org/2000/svg";
+    const el = (tag, cls, txt) => {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (txt) n.textContent = txt;
+      return n;
+    };
+    const https = u => typeof u === "string" && u.startsWith("https://");
+    const link = (cls, txt, href) => {
+      const a = el("a", cls, txt);
+      a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer";
+      return a;
+    };
+    const estrela = (cheia, i) => {
+      const s = document.createElementNS(NS, "svg");
+      s.setAttribute("viewBox", "0 0 24 24");
+      s.setAttribute("aria-hidden", "true");
+      s.setAttribute("class", "star" + (cheia ? " is-on" : ""));
+      s.style.setProperty("--i", i);
+      const p = document.createElementNS(NS, "path");
+      p.setAttribute("d", "M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z");
+      s.appendChild(p);
+      return s;
+    };
+    const estrelas = nota => {
+      const w = el("div", "review__stars");
+      w.setAttribute("role", "img");
+      w.setAttribute("aria-label", nota + " de 5 estrelas");
+      for (let i = 0; i < 5; i++) w.appendChild(estrela(i < nota, i));
+      return w;
+    };
+    const mensagem = txt => {
+      lista.classList.add("is-empty");
+      lista.replaceChildren(el("p", "reviews__empty", txt));
+    };
+    const revelar = cards => {
+      if (!("IntersectionObserver" in window)) return;
+      const o = new IntersectionObserver(itens => {
+        itens.forEach(i => {
+          if (i.isIntersecting) { i.target.classList.add("in"); o.unobserve(i.target); }
+        });
+      }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
+      cards.forEach((c, i) => {
+        c.classList.add("rv");
+        c.style.setProperty("--d", (i % 3) * 0.1 + "s");
+        o.observe(c);
+      });
+    };
+
+    const cartao = r => {
+      const nota = Math.max(0, Math.min(5, Math.round(Number(r.rating) || 0)));
+      const card = el("article", "review");
+
+      const avatar = el("div", "review__avatar");
+      const inicial = () => { avatar.textContent = r.author.trim().charAt(0).toUpperCase(); };
+      if (https(r.photo)) {
+        const img = document.createElement("img");
+        img.src = r.photo;
+        img.alt = "Foto de " + r.author;
+        img.width = 60; img.height = 60; img.loading = "lazy";
+        img.referrerPolicy = "no-referrer";
+        img.addEventListener("error", () => { img.remove(); inicial(); });
+        avatar.appendChild(img);
+      } else {
+        inicial();
+      }
+
+      const nome = el("h3", "review__name");
+      if (https(r.profileUrl)) nome.appendChild(link(null, r.author, r.profileUrl));
+      else nome.textContent = r.author;
+
+      const meta = el("div", "review__meta");
+      meta.appendChild(estrelas(nota));
+      if (r.when) meta.appendChild(el("span", "review__when", r.when));
+
+      const quem = el("div");
+      quem.append(nome, meta);
+      const head = el("div", "review__head");
+      head.append(avatar, quem);
+      card.appendChild(head);
+      if (r.text) card.appendChild(el("p", "review__text", r.text));
+      return card;
+    };
+
+    const resumo = document.getElementById("reviews-summary");
+    const desenharResumo = d => {
+      if (!resumo || typeof d.rating !== "number") return;
+      const total = Number.isInteger(d.total) ? d.total : 0;
+      resumo.replaceChildren(
+        el("span", "reviews__score", d.rating.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })),
+        estrelas(Math.round(d.rating)),
+        el("span", "reviews__count", total ? total + (total === 1 ? " avaliação no Google" : " avaliações no Google") : "Avaliações no Google")
+      );
+      if (https(d.mapsUrl)) resumo.appendChild(link("reviews__link", "Ver no Google", d.mapsUrl));
+      resumo.hidden = false;
+    };
+
+    mensagem("Carregando avaliações…");
+    const ctrl = new AbortController();
+    const limite = setTimeout(() => ctrl.abort(), 10000);
+    fetch("/api/reviews", { headers: { Accept: "application/json" }, signal: ctrl.signal })
+      .then(r => r.json().catch(() => null).then(corpo => {
+        if (!r.ok) {
+          // O visitante vê só a mensagem amigável; o motivo técnico fica no console (F12).
+          console.warn("[Avaliações] /api/reviews falhou (HTTP " + r.status + ")", corpo || "(sem JSON: a função /api não foi encontrada ou não está rodando)");
+          throw new Error("HTTP " + r.status);
+        }
+        return corpo;
+      }))
+      .then(d => {
+        if (!d || !Array.isArray(d.reviews) || !d.reviews.length) {
+          mensagem("Ainda não há avaliações para exibir.");
+          return;
+        }
+        const cards = d.reviews.filter(r => r && r.author).map(cartao);
+        lista.classList.remove("is-empty");
+        lista.replaceChildren(...cards);
+        desenharResumo(d);
+        revelar(cards);
+      })
+      .catch(e => {
+        if (!/^HTTP /.test(e && e.message)) console.warn("[Avaliações] Não foi possível chamar /api/reviews:", e);
+        mensagem("Não foi possível carregar as avaliações agora. Tente novamente mais tarde.");
+      })
+      .finally(() => clearTimeout(limite));
+  }
+
   // Entrada ao rolar
   const alvos = document.querySelectorAll(".card,.sec-head,.phil>div,.about>*,.contact>*,.ftr__in>*");
   if ("IntersectionObserver" in window) {
