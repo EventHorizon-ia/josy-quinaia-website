@@ -104,7 +104,10 @@ p+p{margin-top:1rem}
 .ftr a{text-decoration:none}
 .ftr a:hover{color:var(--rose-2)}
 .ftr__soc{display:flex;gap:1.4rem}
-.ftr__copy{margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid rgba(248,233,239,.2);font-size:.85rem;opacity:.85;max-width:none}
+.ftr__copy{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem 1.5rem;margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid rgba(248,233,239,.2);font-size:.85rem;opacity:.85;max-width:none}
+.ftr__copy p{max-width:none}
+.ftr__copy p+p{margin-top:0}
+.ftr__credits strong{color:var(--blush);font-weight:500}
 .ftr .todo{color:var(--blush)}
 
 /* ===== Tablet / desktop ===== */
